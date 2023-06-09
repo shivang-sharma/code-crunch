@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt");
 
-const { UserEntity } = require("../../db/entity/UserEntity");
-const { UserModel } = require("../../db/models/UserModel");
+const { UserEntity } = require("../../persistency/entity/UserEntity");
+const { UserModel } = require("../../persistency/models/UserModel");
+const { generatePasswordHash } = require("../util/BcryptUtil");
 
 /**
  * 
@@ -56,7 +57,6 @@ function isEmailAvailable(email) {
  * @returns {Promise}
  */
 function signUpService(username, email, password) {
-    const saltRounds = 10;
     return new Promise((resolve, reject) => {
         (async () => {
             let usernameAvailable;
@@ -69,24 +69,23 @@ function signUpService(username, email, password) {
                 return reject(error);
             }
             if ((usernameAvailable && emailAvailable)) {
-                bcrypt.hash(password, saltRounds)
-                    .then(function (passwordHash) {
-                        const newUser = new UserEntity()
-                        newUser.username = username;
-                        newUser.userEmail = email;
-                        newUser.userPassword = passwordHash;
-                        UserModel.save(newUser).then((result) => {
-                            console.info(result);
-                            resolve(result);
-                        }).catch((error) => {
-                            console.error(error);
-                            return reject(error);
-                        })
-                    })
-                    .catch(function (error) {
+                try {
+                    const passwordHash = await generatePasswordHash(password);
+                    const newUser = new UserEntity()
+                    newUser.username = username;
+                    newUser.userEmail = email;
+                    newUser.userPassword = passwordHash;
+                    UserModel.save(newUser).then((result) => {
+                        console.info(result);
+                        resolve(result);
+                    }).catch((error) => {
                         console.error(error);
                         return reject(error);
-                    });
+                    })
+                } catch(error) {
+                    console.error(error);
+                    return reject(error);
+                }
             } else {
                 return reject({ type: "CLIENT_ERROR", msg: "Username or Email already exists" });
             }
@@ -100,7 +99,7 @@ function signUpService(username, email, password) {
  * @returns {Promise}
  */
 function signInService(email, password) {
-    const saltRounds = 10;  
+    const saltRounds = 10;
     return new Promise((resolve, reject) => {
         (async () => {
             try {

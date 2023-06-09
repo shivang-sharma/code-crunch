@@ -103,7 +103,40 @@ class UserModel extends BaseModel {
                         .build();
                     const result = await this._executeQuery(whereQuery)
                     if (result.length == 0) {
-                        return reject("User does not exists");
+                        return reject({msg: "User does not exists"});
+                    }
+                    const user = new UserEntity(result[0].USER_ID);
+                    user.userEmail = result[0].USER_EMAIL;
+                    user.username = result[0].USERNAME;
+                    user.userPassword = result[0].USER_PASSWORD;
+                    return resolve(user);
+                } catch (error) {
+                    return reject(error);
+                }
+            })();
+        });
+    }
+    /**
+     * 
+     * @param {Number} userId 
+     * @returns 
+     */
+    static getUserById(userId) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+                    const whereQuery = new WhereQuery()
+                        .select('USER_ID')
+                        .select('USERNAME')
+                        .select('USER_EMAIL')
+                        .select('USER_PASSWORD')
+                        .from('P_USER')
+                        .where('USER_ID')
+                        .equals(new QueryData('USER_ID', userId, Number))
+                        .build();
+                    const result = await this._executeQuery(whereQuery)
+                    if (result.length == 0) {
+                        return reject({msg: "User does not exists"});
                     }
                     const user = new UserEntity(result[0].USER_ID);
                     user.userEmail = result[0].USER_EMAIL;

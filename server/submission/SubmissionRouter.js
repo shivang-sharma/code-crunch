@@ -2,7 +2,7 @@ const express = require("express");
 const {
   getSubmissionController,
   postSubmissionController,
-} = require("./controller/index");
+} = require("./controller/SubmissionController");
 const submissionRouter = express.Router();
 submissionRouter.get("/submissions/:problemId", getSubmissionController);
 submissionRouter.post("/submission", postSubmissionController);
