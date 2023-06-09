@@ -1,4 +1,4 @@
-const javaCodeAnalyzer = require("./javaCodeValidator");
+const javaCodeAnalyzer = require("./validators/javaCodeValidator");
 module.exports = {
   analyze: (submission, languageId) => {
     switch (languageId) {
