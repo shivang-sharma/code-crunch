@@ -19,7 +19,6 @@ module.exports = {
         const username = bodyData.username;
         const email = bodyData.email;
         const password = bodyData.password;
-        console.log(password);
         try {
           const user = await signUpService(username, email, password);
           return res.status(201).json({ msg: "success" });

@@ -76,7 +76,6 @@ function signUpService(username, email, password) {
                     newUser.userEmail = email;
                     newUser.userPassword = passwordHash;
                     UserModel.save(newUser).then((result) => {
-                        console.info(result);
                         resolve(result);
                     }).catch((error) => {
                         console.error(error);
@@ -104,7 +103,6 @@ function signInService(email, password) {
         (async () => {
             try {
                 const user = await UserModel.getUserByEmail(email);
-                console.log(user);
                 return resolve(user);
             } catch (error) {
                 return reject({ type: "CLIENT_ERROR", msg: "Incorrect Email or Password" });
@@ -127,7 +125,7 @@ function checkUsernameAvailabilityService(username) {
                     return reject({ type: "CLIENT_ERROR", msg: "Username already exists" });
                 }
             } catch (error) {
-                console.log(result);
+                console.log(error);
                 return reject(error);
             }
         })();
@@ -149,7 +147,7 @@ function checkEmailAvailabilityService(email) {
                     return reject({ type: "CLIENT_ERROR", msg: "Email is already associated with another username" });
                 }
             } catch (error) {
-                console.log(result);
+                console.log(error);
                 return reject(error);
             }
         })();

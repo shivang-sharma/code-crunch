@@ -4,7 +4,6 @@ const {redisClient} = require('../redis/Redis');
 const redisStore = new RedisStore({
     client: redisClient,
 });
-redisStore.set("ads", {name: "Shivang"});
 module.exports = {
     sessionMiddleware: session({
         store: redisStore,

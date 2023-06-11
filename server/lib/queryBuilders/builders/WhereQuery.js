@@ -117,7 +117,6 @@ class WhereQuery {
         let whereSequenceString = this.#whereSequence.join(" ");
         this.#whereQuery = `${selectedColumnString} FROM ${this.#table} ${whereSequenceString}`
         this.#whereQuery = `${this.#whereQuery.trim()};`;
-        console.log(this.#whereQuery);
         return this.#whereQuery;
     }
 }

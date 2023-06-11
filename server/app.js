@@ -1,8 +1,8 @@
 const express = require("express");
-
+const morgan = require("morgan");
 const {corsMiddleware} = require("./middleware/CorsMiddleware")
-const {isAuth, sessionMiddleware} = require("./middleware/SessionMiddleware");
-const {authMiddleware} = require("./middleware/Middleware");
+const {sessionMiddleware} = require("./middleware/SessionMiddleware");
+const {authenticationMiddleware} = require("./middleware/Middleware");
 
 const {passport} = require("./auth/util/PassportUtil")
 
@@ -29,10 +29,11 @@ const port = 3000;
 /**
  * Attaching Middlewares
  */
+app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :response-time[2] :res[content-length] ":referrer" ":user-agent"'));
 app.set('trust proxy', 1);
 app.use(express.json());
-app.options('*', corsMiddleware);
-app.use(corsMiddleware);
+// app.options('*', corsMiddleware);
+// app.use(corsMiddleware);
 
 /**
  * We need a way to store user data between HTTP requests and sessions
@@ -62,11 +63,11 @@ app.use(passport.session());
  * Attaching Routers
  */
 app.use("/api", authRouter);
-app.use("/api", healthRouter);
-app.use("/api", leaderboardRouter);
-app.use("/api", problemRouter);
-app.use("/api", profileRouter);
-app.use("/api", submissionRouter);
+app.use("/api", authenticationMiddleware, healthRouter);
+app.use("/api", authenticationMiddleware, leaderboardRouter);
+app.use("/api", authenticationMiddleware, problemRouter);
+app.use("/api", authenticationMiddleware, profileRouter);
+app.use("/api", authenticationMiddleware, submissionRouter);
 
 app.listen(port, () => {
   console.log(`REST Server listening on port ${port}`);

@@ -54,7 +54,6 @@ passport.use(localStrategy);
  * This is used  for setting the user id as cookie in header
  */
 passport.serializeUser((user, done)=>{
-    console.log("inside serialize", user.json);
     return done(null,user.userId);
 });
 
