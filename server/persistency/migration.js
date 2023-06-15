@@ -1,6 +1,7 @@
 const { mysqlPool } = require("./db");
 const { PoolConnection } = require("mysql2");
-
+const {Logger} = require("../lib/logger/Logger");
+const logger = new Logger("API-SERVER", "migration.js");
 const {
 	schemas,
 	schemaNames,
@@ -16,7 +17,7 @@ function dropTableIfExists(tableName, connection) {
 	return new Promise((resolve, reject) => {
 		connection.execute(`DROP TABLE IF EXISTS ${tableName}`, (err, result) => {
 			if (err) {
-				console.log(err);
+				logger.error(err);
 				reject(err);
 				return;
 			}
@@ -34,7 +35,7 @@ function createTable(tableSchema, connection) {
 	return new Promise((resolve, reject) => {
 		connection.query(tableSchema, (err, rows, fields) => {
 			if (err) {
-				console.error(err);
+				logger.error(err);
 				reject(err);
 				return;
 			}
@@ -47,7 +48,7 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			mysqlPool.getConnection(async (err, connection) => {
 				if (err) {
-					console.error(err);
+					logger.error(err);
 					reject(err);
 					return;
 				}
@@ -56,7 +57,7 @@ module.exports = {
 						await dropTableIfExists(schemaName, connection);
 					}
 				} catch (error) {
-					console.log(error);
+					logger.error(error);
 					connection.release();
 					reject(err);
 					return;
@@ -66,7 +67,7 @@ module.exports = {
 						await createTable(schema, connection);
 					}
 				} catch(error) {
-					console.log(error);
+					logger.info(error);
 					connection.release();
 					reject(err);
 					return;
@@ -79,7 +80,7 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			mysqlPool.getConnection((err, connection) => {
 				if (err) {
-					console.error(err);
+					logger.error(err);
 					connection.release();
 					reject(err);
 					return;

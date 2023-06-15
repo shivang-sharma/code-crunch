@@ -1,9 +1,9 @@
-const bcrypt = require("bcrypt");
-
 const { UserEntity } = require("../../persistency/entity/UserEntity");
 const { UserModel } = require("../../persistency/models/UserModel");
 const { generatePasswordHash } = require("../util/BcryptUtil");
 
+const {Logger} = require("../../lib/logger/Logger");
+const logger = new Logger("API-SERVER", "AuthService.js");
 /**
  * 
  * @param {String} username 
@@ -20,7 +20,7 @@ function isUsernameAvailable(username) {
                     return resolve(true);
                 }
             } catch (error) {
-                console.error(error);
+                logger.error(error);
                 return resolve(error);
             }
         })();
@@ -42,7 +42,7 @@ function isEmailAvailable(email) {
                     return resolve(true);
                 }
             } catch (error) {
-                console.error(error);
+                logger.error(error);
                 return reject(error);
             }
         })();
@@ -65,7 +65,7 @@ function signUpService(username, email, password) {
                 usernameAvailable = await isUsernameAvailable(username);
                 emailAvailable = await isEmailAvailable(email);
             } catch (error) {
-                console.log(error);
+                loggererror(error);
                 return reject(error);
             }
             if ((usernameAvailable && emailAvailable)) {
@@ -78,34 +78,15 @@ function signUpService(username, email, password) {
                     UserModel.save(newUser).then((result) => {
                         resolve(result);
                     }).catch((error) => {
-                        console.error(error);
+                        logger.error(error);
                         return reject(error);
                     })
                 } catch(error) {
-                    console.error(error);
+                    logger.error(error);
                     return reject(error);
                 }
             } else {
                 return reject({ type: "CLIENT_ERROR", msg: "Username or Email already exists" });
-            }
-        })()
-    });
-}
-/**
- * 
- * @param {String} email 
- * @param {String} password 
- * @returns {Promise}
- */
-function signInService(email, password) {
-    const saltRounds = 10;
-    return new Promise((resolve, reject) => {
-        (async () => {
-            try {
-                const user = await UserModel.getUserByEmail(email);
-                return resolve(user);
-            } catch (error) {
-                return reject({ type: "CLIENT_ERROR", msg: "Incorrect Email or Password" });
             }
         })()
     });
@@ -125,7 +106,7 @@ function checkUsernameAvailabilityService(username) {
                     return reject({ type: "CLIENT_ERROR", msg: "Username already exists" });
                 }
             } catch (error) {
-                console.log(error);
+                logger.error(error);
                 return reject(error);
             }
         })();
@@ -147,7 +128,7 @@ function checkEmailAvailabilityService(email) {
                     return reject({ type: "CLIENT_ERROR", msg: "Email is already associated with another username" });
                 }
             } catch (error) {
-                console.log(error);
+                logger.error(error);
                 return reject(error);
             }
         })();
@@ -155,7 +136,6 @@ function checkEmailAvailabilityService(email) {
 }
 module.exports = {
     signUpService: signUpService,
-    signInService: signInService,
     checkUsernameAvailabilityService: checkUsernameAvailabilityService,
     checkEmailAvailabilityService: checkEmailAvailabilityService
 }

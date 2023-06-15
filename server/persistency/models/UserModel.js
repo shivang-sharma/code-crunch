@@ -3,7 +3,8 @@ const { WhereQuery } = require("../../lib/queryBuilders/builders/WhereQuery");
 const { UserEntity } = require("../entity/UserEntity");
 const { QueryData } = require("../../lib/queryBuilders/QueryData");
 const { BaseModel } = require("./base/BaseModel");
-
+const {Logger} = require("../../lib/logger/Logger");
+const logger = new Logger("API-SERVER", "UserModel.js");
 class UserModel extends BaseModel {
     /**
      * 
@@ -14,6 +15,7 @@ class UserModel extends BaseModel {
         return new Promise((resolve, reject) => {
             (async () => {
                 if (!(user instanceof UserEntity)) {
+                    logger.error(`UserEntity instance expected instead got ${user.constructor.name}`);
                     return reject(Error(`UserEntity instance expected instead got ${user.constructor.name}`));
                 }
                 try {
@@ -32,6 +34,7 @@ class UserModel extends BaseModel {
                         userEmail: user.userEmail
                     });
                 } catch (error) {
+                    logger.error(error);
                     return reject(error);
                 }
             })();
@@ -55,6 +58,7 @@ class UserModel extends BaseModel {
                     const result = await this._executeQuery(whereQuery)
                     resolve(result);
                 } catch (error) {
+                    logger.error(error);
                     return reject(error);
                 }
             })();
@@ -78,6 +82,7 @@ class UserModel extends BaseModel {
                     const result = await this._executeQuery(whereQuery)
                     resolve(result);
                 } catch (error) {
+                    logger.error(error);
                     return reject(error);
                 }
             })();
@@ -111,6 +116,7 @@ class UserModel extends BaseModel {
                     user.userPassword = result[0].USER_PASSWORD;
                     return resolve(user);
                 } catch (error) {
+                    logger.error(error);
                     return reject(error);
                 }
             })();
@@ -144,6 +150,7 @@ class UserModel extends BaseModel {
                     user.userPassword = result[0].USER_PASSWORD;
                     return resolve(user);
                 } catch (error) {
+                    logger.error(error);
                     return reject(error);
                 }
             })();

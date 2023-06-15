@@ -1,4 +1,6 @@
 const amqp = require("amqplib");
+const {Logger} = require("../logger/Logger")
+const logger = new Logger("API-SERVER", "Publisher.js");
 
 class Publisher {
   #queueName;
@@ -15,10 +17,10 @@ class Publisher {
       this.#channel = await this.#connection.createChannel();
       this.#channel.assertQueue(this.#queueName, { durable: false });
       this.#connection.on("error", (err) => {
-        console.log(`Error occured in Publisher Connection: ${err}`);
+        logger.error(`Error occured in Publisher Connection: ${err}`);
       });
       this.#channel.on("error", (err) => {
-        console.log(`Error occured in Publisher channel: ${err}`);
+        logger.error(`Error occured in Publisher channel: ${err}`);
       });
     }
   }
@@ -34,14 +36,14 @@ class Publisher {
       this.#channel.close();
       this.#connection.close();
     } catch (e) {
-      console.log(`Error occured while publisher shutdown : ${e}`);
+      logger.error(`Error occured while publisher shutdown : ${e}`);
     }
   }
 }
 const publisher = new Publisher("submissionQueue");
 (async () => {
   await publisher.connect();
-  console.log("Publisher connected ...");
+  logger.info("Publisher connected");
 })();
 module.exports = publisher;
 // (async () => {

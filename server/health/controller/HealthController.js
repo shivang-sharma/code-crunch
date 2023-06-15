@@ -11,8 +11,7 @@ module.exports = {
    */
   healthController: function (req, res, next) {
     res.json({
-      msg: "hello world",
-      user:req.user.json
+      msg: "hello world"
     });
   },
 };

@@ -1,5 +1,6 @@
 const Redis = require('ioredis');
-
+const {Logger} = require("../lib/logger/Logger");
+const logger = new Logger("API-SERVER", "Redis.js");
 const redisClient = new Redis({
     port: 6379, // Redis port
     host: "127.0.0.1", // Redis host
@@ -27,7 +28,7 @@ redisClient.on('connect', () => {
      * Emits when a connection is established
      * to the Redis server.
      */
-    console.log("Redis Connected ...")
+    logger.info("Redis Connected")
 });
 redisClient.on('ready', () => {
     /**
@@ -38,7 +39,7 @@ redisClient.on('ready', () => {
      * ready will be emitted immediately right after
      * the connect event.
      */
-    console.log("Redis Ready ...")
+    logger.info("Redis Ready")
 });
 redisClient.on('end', () => {
     /**
@@ -46,7 +47,7 @@ redisClient.on('end', () => {
      * reconnections will be made, or 
      * the connection is failed to establish.
      */
-    console.log("Redis End ...")
+    logger.info("Redis End")
 });
 redisClient.on('reconnecting', () => {
     /**
@@ -54,7 +55,7 @@ redisClient.on('reconnecting', () => {
      * made. The argument of the event is the time 
      * (in ms) before reconnecting.
      */
-    console.log("Redis Reconnecting ...")
+    logger.info("Redis Reconnecting")
 });
 redisClient.on('error', (err) => {
     /**
@@ -65,14 +66,14 @@ redisClient.on('error', (err) => {
      * won't crash if you're not listening to the
      * error event.
      */
-    console.log("Redis Error ...", err);
+    logger.error(`Redis Error: ${err}`);
 });
 redisClient.on('close', (err) => {
     /**
      * Emits when an established Redis server 
      * connection has closed.
      */
-    console.log("Redis close ...", err);
+    logger.error(`Redis close: ${err}`);
 });
 redisClient.on('wait', (err) => {
     /**
@@ -80,7 +81,7 @@ redisClient.on('wait', (err) => {
      * for the first command to be called before 
      * connecting.
      */
-    console.log("Redis wait ...", err);
+    logger.error(`Redis wait: ${err}`);
 });
 module.exports = {
     redisClient:redisClient

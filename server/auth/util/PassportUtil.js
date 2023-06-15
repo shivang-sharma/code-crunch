@@ -4,7 +4,8 @@ const LocalStrategy = require('passport-local').Strategy;
 
 const {UserModel} = require("../../persistency/models/UserModel");
 const {comparePasswordHash} = require("./BcryptUtil");
-
+const {Logger} = require("../../lib/logger/Logger")
+const logger = new Logger("API-SERVER", "PassportUtil.js");
 /**
  * @description
  * Custom Field credential Keys
@@ -37,10 +38,11 @@ function verifyCredentialsCallback(email, password, done) {
                 return done(null, false);
             }
         } catch(error) {
-            console.log(error);
             if(error.msg === undefined) {
+                logger.error(error);
                 return done(error);
             } else {
+                logger.error(error.msg);
                 return done(null, false);
             }
         }
@@ -67,8 +69,10 @@ passport.deserializeUser(function(userId, done) {
             return done(null, userFromDB);
         } catch(error) {
             if(error.msg === undefined) {
+                logger.error(error);
                 return done(error);
             } else {
+                logger.error(error.msg);
                 return done(null, false);
             }
         }

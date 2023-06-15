@@ -32,14 +32,14 @@ class UserEntity {
     set userPassword(userPassword) {
         this.#userPassword=userPassword
     };
-    get json() {
-        return {
-            userId: this.#userId,
-            userEmail: this.#userEmail,
-            username: this.#username,
-            userPassword:this.#userPassword
-        }
-    }
+    // get json() {
+    //     return {
+    //         userId: this.#userId,
+    //         userEmail: this.#userEmail,
+    //         username: this.#username,
+    //         userPassword:this.#userPassword
+    //     }
+    // }
 }
 module.exports = {
     UserEntity: UserEntity

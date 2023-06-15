@@ -1,9 +1,11 @@
 const express = require("express");
-const morgan = require("morgan");
+
+const {morganMiddleware} = require("./lib/logger/MorganWrapper");
 const {corsMiddleware} = require("./middleware/CorsMiddleware")
 const {sessionMiddleware} = require("./middleware/SessionMiddleware");
 const {authenticationMiddleware} = require("./middleware/Middleware");
-
+const {Logger} = require("./lib/logger/Logger");
+const logger = new Logger("API-SERVER", "app.js");
 const {passport} = require("./auth/util/PassportUtil")
 
 const { authRouter } = require("./auth/AuthRouter");
@@ -29,7 +31,7 @@ const port = 3000;
 /**
  * Attaching Middlewares
  */
-app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :response-time[2] :res[content-length] ":referrer" ":user-agent"'));
+app.use(morganMiddleware);
 app.set('trust proxy', 1);
 app.use(express.json());
 // app.options('*', corsMiddleware);
@@ -63,12 +65,12 @@ app.use(passport.session());
  * Attaching Routers
  */
 app.use("/api", authRouter);
-app.use("/api", authenticationMiddleware, healthRouter);
+app.use("/api", healthRouter);
 app.use("/api", authenticationMiddleware, leaderboardRouter);
 app.use("/api", authenticationMiddleware, problemRouter);
 app.use("/api", authenticationMiddleware, profileRouter);
 app.use("/api", authenticationMiddleware, submissionRouter);
 
 app.listen(port, () => {
-  console.log(`REST Server listening on port ${port}`);
+  logger.verbose(`REST Server listening on port ${port}`);
 });

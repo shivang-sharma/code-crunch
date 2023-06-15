@@ -2,7 +2,9 @@ const { Request } = require("express");
 const { Response } = require("express");
 const { NextFunction } = require("express");
 const { validationResult, matchedData } = require("express-validator");
-const { signUpService, signInService, checkEmailAvailabilityService, checkUsernameAvailabilityService } = require("../service/AuthService");
+const {Logger} = require("../../lib/logger/Logger");
+const logger = new Logger("API-SERVER", "AuthController.js")
+const { signUpService, checkEmailAvailabilityService, checkUsernameAvailabilityService } = require("../service/AuthService");
 
 module.exports = {
   /**
@@ -23,19 +25,20 @@ module.exports = {
           const user = await signUpService(username, email, password);
           return res.status(201).json({ msg: "success" });
         } catch (error) {
-          console.error(error);
           if (error.type === "CLIENT_ERROR") {
+            logger.error(error.msg);
             return res.status(406).json({ error: error.msg });
           } else {
+            logger.error(error);
             return res.status(500).json({ msg: "Failed to SignUp" });
           }
         }
       } else {
-        console.error(result.array());
+        logger.error(result.array());
         return res.status(403).json({ error: result.array() });
       }
     })().catch((error) => {
-      console.e(error);
+      logger.error(error);
       return res.status(500).json({ msg: "Failed to SignUp" });
     });
   },
@@ -49,23 +52,8 @@ module.exports = {
       const result = validationResult(req);
       if (result.isEmpty()) {
         next();
-        // const bodyData = matchedData(req);
-        // const email = bodyData.email;
-        // const password = bodyData.password;
-        // try {
-        //   const user = await signInService(email, password);
-        //   req.session.user = user;
-        //   return res.sendStatus(204);
-        // } catch (error) {
-        //   console.error(error);
-        //   if (error.type === "CLIENT_ERROR") {
-        //     return res.status(401).json({ error: error.msg });
-        //   } else {
-        //     return res.status(500).json({ msg: "Failed to Login" });
-        //   }
-        // }
       } else {
-        console.error(result.array());
+        logger.error(result.array());
         return res.status(403).json({ error: result.array() });
       }
   },
@@ -104,19 +92,20 @@ module.exports = {
           const availablilty = await checkUsernameAvailabilityService(username);
           return res.status(200).json(availablilty);
         } catch (error) {
-          console.error(error);
           if (error.type === "CLIENT_ERROR") {
+            logger.error(error.msg);
             return res.status(403).json({ error: error.msg });
           } else {
+            logger.error(error);
             return res.status(500).json({ msg: "Internal Server Error" });
           }
         }
       } else {
-        console.error(result.array());
+        logger.error(result.array());
         return res.status(403).json({ error: result.array() });
       }
     })().catch((error) => {
-      console.error(error);
+      logger.error(error);
       return res.status(500).json({ msg: "Internal Server Error" });
     });
   },
@@ -136,19 +125,20 @@ module.exports = {
           const availablilty = await checkEmailAvailabilityService(email);
           return res.status(200).json(availablilty);
         } catch (error) {
-          console.error(error);
           if (error.type === "CLIENT_ERROR") {
+            logger.error(error.msg);
             return res.status(403).json({ error: error.msg });
           } else {
+            logger.error(error);
             return res.status(500).json({ msg: "Internal Server Error" });
           }
         }
       } else {
-        console.error(result.array());
+        logger.error(result.array());
         return res.status(403).json({ error: result.array() });
       }
     })().catch((error) => {
-      console.error(error);
+      logger.error(error);
       return res.status(500).json({ msg: "Internal Server Error" });
     });
   }
