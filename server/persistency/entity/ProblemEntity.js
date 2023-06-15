@@ -42,7 +42,19 @@ class ProblemEntity {
     get problemTemplate() {
         return this.#problemTemplate;
     }
+    toJSON() {
+        return {
+            problemId:this.#problemId,
+            problemName:this.#problemName,
+            problemDescription:this.#problemDescription,
+            problemTestCase:this.#problemTestCase,
+            problemTimeout:this.#problemTimeout,
+            problemDifficulty:this.#problemDifficulty,
+            problemAcceptance:this.#problemAcceptance,
+            problemTemplate:this.#problemTemplate,
+        }
+    }
 }
 module.exports = {
-    LanguageEntity: LanguageEntity
+    ProblemEntity: ProblemEntity
 }
