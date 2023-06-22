@@ -101,7 +101,7 @@ function checkUsernameAvailabilityService(username) {
             try {
                 const result = await isUsernameAvailable(username);
                 if (result) {
-                    resolve({ status: "success", msg: "Available" });
+                    resolve({ status: "success", msg: "available" });
                 } else {
                     return reject({ type: "CLIENT_ERROR", msg: "Username already exists" });
                 }
@@ -123,7 +123,7 @@ function checkEmailAvailabilityService(email) {
             try {
                 const result = await isEmailAvailable(email);
                 if (result) {
-                    resolve({ status: "success", msg: "Available" });
+                    resolve({ status: "success", msg: "available" });
                 } else {
                     return reject({ type: "CLIENT_ERROR", msg: "Email is already associated with another username" });
                 }

@@ -26,7 +26,7 @@ const { migrateSchema, migrateData } = require("./persistency/migration");
 })();
 
 const app = express();
-const port = 3000;
+const port = 5000;
 
 /**
  * Attaching Middlewares
@@ -64,6 +64,10 @@ app.use(passport.session());
 /**
  * Attaching Routers
  */
+app.use((req, res, next)=>{
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  next();
+})
 app.use("/api", authRouter);
 app.use("/api", healthRouter);
 app.use("/api", authenticationMiddleware, leaderboardRouter);
