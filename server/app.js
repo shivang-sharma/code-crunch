@@ -1,4 +1,6 @@
 const express = require("express");
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUI = require('swagger-ui-express');
 
 const {morganMiddleware} = require("./lib/logger/MorganWrapper");
 const {corsMiddleware} = require("./middleware/CorsMiddleware")
@@ -34,8 +36,8 @@ const port = 5000;
 app.use(morganMiddleware);
 app.set('trust proxy', 1);
 app.use(express.json());
-// app.options('*', corsMiddleware);
-// app.use(corsMiddleware);
+app.options('*', corsMiddleware);
+app.use(corsMiddleware);
 
 /**
  * We need a way to store user data between HTTP requests and sessions
@@ -64,10 +66,40 @@ app.use(passport.session());
 /**
  * Attaching Routers
  */
-app.use((req, res, next)=>{
-  res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-  next();
-})
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    failOnErrors: true,
+    info: {  
+        title:'API',  
+        version:'1.0.0'  
+    },
+    servers: [
+      {
+        url: "http://localhost:5000"
+      }
+    ],
+    tags: [
+      {
+        name:"auth",
+        description: "Auth related endpoints"
+      }, 
+      {
+        name: "problem",
+        description: "Problems related endpoints"
+      },
+      {
+        name: "health",
+        description: "Service health related endpoints"
+      }
+    ]
+
+},  
+  apis: ['./**/**Router.js'], // files containing annotations as above
+}  
+const swaggerDocs = swaggerJsdoc(options);
+app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(swaggerDocs));
 app.use("/api", authRouter);
 app.use("/api", healthRouter);
 app.use("/api", authenticationMiddleware, leaderboardRouter);

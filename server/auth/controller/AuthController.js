@@ -64,7 +64,7 @@ module.exports = {
    * @param {NextFunction} next
    */
   getLogoutController: function (req, res, next) {
-    if (req.session) {
+    if (req.session && req.user) {
       req.session.destroy(err => {
         if (err) {
           res.status(400).send('Unable to logout');

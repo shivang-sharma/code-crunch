@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { validateEmail, validatePassword, validUsername } from "../util/validators";
 import { BACKEND_BASE_URL } from "../config";
+
 export default function SignUpForm() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -15,6 +16,10 @@ export default function SignUpForm() {
     const [isEmailAvailable, setIsEmailAvailable] = useState(true);
     const [isPasswordValid, setIsPasswordValid] = useState(true);
     const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(true);
+
+    useEffect(() => {
+        setIsConfirmPasswordValid((confirmPassword.length > 0) ? (confirmPassword.localeCompare(password) === 0): true);
+    }, [confirmPassword, password])
 
     function usernameOnChangeHandler(e) {
         setUsername(e.target.value);
@@ -30,7 +35,6 @@ export default function SignUpForm() {
     }
     function confirmPasswordOnChangeHandler(e) {
         setConfirmPassword(e.target.value);
-        setIsConfirmPasswordValid((confirmPassword.localeCompare(password)) && (confirmPassword.length > 0));
     }
     function privacyOnChangeHandler(e) {
         setPrivacyAgreement(e.target.checked);
@@ -47,6 +51,21 @@ export default function SignUpForm() {
             if (!(usernameValidityResponse && emailValidityResponse)) {
                 return;
             }
+            const postBodyJson = {
+                username: username,
+                email: email,
+                password: password
+            }
+            const createAccountResponse = await fetch(`${BACKEND_BASE_URL}/signup`, { 
+                mode: 'cors',
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(postBodyJson)
+            });
+            console.log(createAccountResponse.json());
         } catch (error) {
             console.log(error);
         }
