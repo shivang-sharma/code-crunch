@@ -22,7 +22,7 @@ export default function SignUpForm() {
     const [userCreatedSuccessfully, setUserCreatedSuccessfully] = useState(false);
     const [timer, setTimer] = useState(4);
     const intervalIdRef = useRef(0);
-    const [errorOccured, setErrorOccured] = useState(false);
+    const [errorOccurred, setErrorOccurred] = useState(false);
 
 
     useEffect(() => {
@@ -42,23 +42,25 @@ export default function SignUpForm() {
         if (timer === 0 && userCreatedSuccessfully) {
             clearInterval(intervalIdRef.current);
             navigate("/gettingStarted");
-        } else if (timer === 0 && errorOccured) {
+        } else if (timer === 0 && errorOccurred) {
             clearInterval(intervalIdRef.current);
         }
-    }, [timer, navigate, userCreatedSuccessfully, errorOccured]);
+    }, [timer, navigate, userCreatedSuccessfully, errorOccurred, intervalIdRef]);
 
     useEffect(()=> {
-        setTimeout(() => {
-            setErrorOccured(false);
+        const timeout = setTimeout(() => {
+            setErrorOccurred(false);
         }, 1500);
-    }, [errorOccured])
+        return () => clearTimeout(timeout);
+    }, [errorOccurred])
 
     useEffect(() => {
-        if (userCreatedSuccessfully || errorOccured) {
+        if (userCreatedSuccessfully || errorOccurred) {
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;
         }
-    }, [userCreatedSuccessfully, errorOccured])
+        return ()=> clearTimeout(intervalIdRef.current);
+    }, [userCreatedSuccessfully, errorOccurred])
 
     function usernameOnChangeHandler(e) {
         setUsername(e.target.value);
@@ -155,7 +157,7 @@ export default function SignUpForm() {
                     }
                     break;
                 case 500:
-                    setErrorOccured(true);
+                    setErrorOccurred(true);
                     startErrorToastDisappearTimer();
                     break;
                 default:
@@ -195,7 +197,7 @@ export default function SignUpForm() {
                             <div className="pl-4 text-sm font-normal">Account created successfully ({timer}s)</div>
                         </div>
                     </div>
-                    : errorOccured ?
+                    : errorOccurred ?
                     <div className="flex flex-col items-center justify-center pb-12">
                         <div className="flex items-center w-full max-w-xs p-4 space-x-4 text-gray-500 bg-white divide-x divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800" role="alert">
                             <svg className="w-5 h-5" fill="#DC7633" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width="56" zoomAndPan="magnify" viewBox="0 0 375 374.9999" height="56" preserveAspectRatio="xMidYMid meet" version="1.0">
