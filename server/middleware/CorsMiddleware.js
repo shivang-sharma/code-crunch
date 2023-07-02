@@ -1,11 +1,11 @@
 const cors = require('cors');
 const {Logger} = require("../lib/logger/Logger")
 const logger = new Logger("API-SERVER", "CorsMiddleware.js");
-const whiteList = new Set(["http://localhost:3000"]); 
+const whiteList = new Set(["http://localhost:3000", "http://localhost:5000"]); 
 const corsOptions = {
     optionsSuccessStatus: 200, // Some leagacy browser choke on 204
     origin: function(origin, callback) {
-        if (whiteList.has(origin)) {
+        if ( !origin ||whiteList.has(origin)) {
             callback(null, true);
         } else {
             logger.error(origin);
