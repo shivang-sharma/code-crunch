@@ -117,6 +117,26 @@ authRouter.post("/signup", validateUsername({body:true}), validatePassword(), va
  *         description: Invalid credentials
  *       403:
  *         description: One or all the field submited contains invalid value
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       type:
+ *                         type: string
+ *                       value:
+ *                         type: string
+ *                       msg:
+ *                         type: string
+ *                       path:
+ *                         type: string
+ *                       location:
+ *                         type: string
  *       500:
  *         description: Failed to Login due to internal server error
  *       
