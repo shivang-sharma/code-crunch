@@ -16,7 +16,7 @@ module.exports = {
 
         return regex.test(password);
     },
-    validUsername: function (username) {
+    validateUsername: function (username) {
         return true;
     }
 }
