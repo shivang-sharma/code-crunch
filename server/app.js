@@ -1,4 +1,7 @@
 const express = require("express");
+const compression = require("compression")
+const helmet = require("helmet")
+const hpp = require("hpp")
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 
@@ -33,9 +36,14 @@ const port = 5000;
 /**
  * Attaching Middlewares
  */
+app.disable('x-powered-by');
+app.use(compression());
+app.use(helmet());
 app.use(morganMiddleware);
 app.set('trust proxy', 1);
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(hpp());
 app.options('*', corsMiddleware);
 app.use(corsMiddleware);
 
