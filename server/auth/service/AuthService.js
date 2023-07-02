@@ -2,7 +2,7 @@ const { UserEntity } = require("../../persistency/entity/UserEntity");
 const { UserModel } = require("../../persistency/models/UserModel");
 const { generatePasswordHash } = require("../util/BcryptUtil");
 
-const {Logger} = require("../../lib/logger/Logger");
+const { Logger } = require("../../lib/logger/Logger");
 const logger = new Logger("API-SERVER", "AuthService.js");
 /**
  * 
@@ -81,12 +81,19 @@ function signUpService(username, email, password) {
                         logger.error(error);
                         return reject(error);
                     })
-                } catch(error) {
+                } catch (error) {
                     logger.error(error);
                     return reject(error);
                 }
             } else {
-                return reject({ type: "CLIENT_ERROR", msg: "Username or Email already exists" });
+                return reject({
+                    type: "CLIENT_ERROR",
+                    data: {
+                        msg: "Username or Email already exists",
+                        username: usernameAvailable,
+                        email: emailAvailable
+                    }
+                });
             }
         })()
     });

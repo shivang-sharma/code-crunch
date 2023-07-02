@@ -27,7 +27,7 @@ module.exports = {
         } catch (error) {
           if (error.type === "CLIENT_ERROR") {
             logger.error(error.msg);
-            return res.status(406).json({ error: error.msg });
+            return res.status(406).json({ error: error.data });
           } else {
             logger.error(error);
             return res.status(500).json({ msg: "Failed to SignUp" });
