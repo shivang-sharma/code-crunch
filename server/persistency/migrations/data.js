@@ -1,5 +1,5 @@
 const userData = [
-  "INSERT INTO P_USER (USERNAME, USER_EMAIL, USER_PASSWORD) VALUES ('test_account', 'test@gmail.com', 'testing')",
+  "INSERT INTO P_USER (USERNAME, USER_EMAIL, USER_PASSWORD, USER_AUTH_MECHANISM) VALUES ('test_account', 'test@gmail.com', 'testing', 'BASIC')",
 ];
 const languageData = [
   "INSERT INTO P_LANGUAGE (LANGUAGE_NAME, LANGUAGE_SANDBOX) VALUES ('JAVA', 'java_sandbox')",

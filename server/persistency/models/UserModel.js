@@ -21,8 +21,12 @@ class UserModel extends BaseModel {
                 try {
                     const insertQuery = new InsertQuery()
                         .insert(new QueryData('USERNAME', user.username, String))
+                        .insert(new QueryData('USER_FIRST_NAME', user.firstName, String))
+                        .insert(new QueryData('USER_LAST_NAME', user.lastName, String))
                         .insert(new QueryData('USER_EMAIL', user.userEmail, String))
                         .insert(new QueryData('USER_PASSWORD', user.userPassword, String))
+                        .insert(new QueryData('USER_PROFILE_PHOTO_URL', user.profilePhotoURL, String))
+                        .insert(new QueryData('USER_AUTH_MECHANISM', user.authMechanism, String))
                         .into('P_USER')
                         .build();
                     const result = await this._executeQuery(insertQuery);
@@ -34,7 +38,7 @@ class UserModel extends BaseModel {
                         userEmail: user.userEmail
                     });
                 } catch (error) {
-                    logger.error(error);
+                    logger.error(`${error.stack}`);
                     return reject(error);
                 }
             })();
@@ -58,7 +62,7 @@ class UserModel extends BaseModel {
                     const result = await this._executeQuery(whereQuery)
                     resolve(result);
                 } catch (error) {
-                    logger.error(error);
+                    logger.error(`${error.stack}`);
                     return reject(error);
                 }
             })();
@@ -82,7 +86,7 @@ class UserModel extends BaseModel {
                     const result = await this._executeQuery(whereQuery)
                     resolve(result);
                 } catch (error) {
-                    logger.error(error);
+                    logger.error(`${error.stack}`);
                     return reject(error);
                 }
             })();
@@ -102,6 +106,7 @@ class UserModel extends BaseModel {
                         .select('USERNAME')
                         .select('USER_EMAIL')
                         .select('USER_PASSWORD')
+                        .select('USER_AUTH_MECHANISM')
                         .from('P_USER')
                         .where('USER_EMAIL')
                         .equals(new QueryData('USER_EMAIL', email, String))
@@ -114,9 +119,10 @@ class UserModel extends BaseModel {
                     user.userEmail = result[0].USER_EMAIL;
                     user.username = result[0].USERNAME;
                     user.userPassword = result[0].USER_PASSWORD;
+                    user.authMechanism = result[0].USER_AUTH_MECHANISM;
                     return resolve(user);
                 } catch (error) {
-                    logger.error(error);
+                    logger.error(`${error.stack}`);
                     return reject(error);
                 }
             })();
@@ -150,7 +156,7 @@ class UserModel extends BaseModel {
                     user.userPassword = result[0].USER_PASSWORD;
                     return resolve(user);
                 } catch (error) {
-                    logger.error(error);
+                    logger.error(`${error.stack}`);
                     return reject(error);
                 }
             })();

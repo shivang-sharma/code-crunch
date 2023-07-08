@@ -1,9 +1,20 @@
 const userSchema = `CREATE TABLE P_USER (
     USER_ID INTEGER AUTO_INCREMENT NOT NULL,
-    USERNAME VARCHAR(100),
+    USERNAME VARCHAR(100) NOT NULL UNIQUE,
+    USER_FIRST_NAME VARCHAR(50),
+    USER_LAST_NAME VARCHAR(50),
     USER_EMAIL VARCHAR(100),
     USER_PASSWORD VARCHAR(300),
+    USER_PROFILE_PHOTO_URL VARCHAR(300),
+    USER_AUTH_MECHANISM ENUM('BASIC', 'GOOGLE', 'GITHUB'),
     PRIMARY KEY (USER_ID)
+);`;
+const googleOAuthSchema = `CREATE TABLE P_GOOGLE_OAUTH (
+    GOOGLE_OAUTH_ID VARCHAR(100) NOT NULL,
+    GOOGLE_OAUTH_REFRESH_TOKEN VARCHAR(400),
+    USER_ID INTEGER,
+    PRIMARY KEY (GOOGLE_OAUTH_ID),
+    FOREIGN KEY (USER_ID) REFERENCES P_USER(USER_ID)
 );`;
 const languageSchema = `CREATE TABLE P_LANGUAGE (
     LANGUAGE_ID INTEGER AUTO_INCREMENT NOT NULL,
@@ -36,11 +47,11 @@ const submissionSchema = `CREATE TABLE P_SUBMISSION (
     FOREIGN KEY (SUBMISSION_LANG_ID) REFERENCES P_LANGUAGE(LANGUAGE_ID)
 );`;
 const schemaName = [
+    'P_GOOGLE_OAUTH',
     "P_SUBMISSION",
     "P_PROBLEM",
     "P_LANGUAGE",
-    "P_USER",
-
+    "P_USER"
 ]
 module.exports = {
     schemas: [
@@ -48,6 +59,7 @@ module.exports = {
         languageSchema,
         problemSchema,
         submissionSchema,
+        googleOAuthSchema
     ],
     schemaNames: schemaName
 };
