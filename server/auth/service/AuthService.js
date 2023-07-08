@@ -56,7 +56,7 @@ function isEmailAvailable(email) {
  * @param {String} password 
  * @returns {Promise}
  */
-function signUpService(username, email, password) {
+function signUpService(username, firstName, lastName, email, password) {
     return new Promise((resolve, reject) => {
         (async () => {
             let usernameAvailable;
@@ -65,7 +65,7 @@ function signUpService(username, email, password) {
                 usernameAvailable = await isUsernameAvailable(username);
                 emailAvailable = await isEmailAvailable(email);
             } catch (error) {
-                loggererror(error);
+                logger.error(`${error.stack}`);
                 return reject(error);
             }
             if ((usernameAvailable && emailAvailable)) {
@@ -73,16 +73,20 @@ function signUpService(username, email, password) {
                     const passwordHash = await generatePasswordHash(password);
                     const newUser = new UserEntity()
                     newUser.username = username;
+                    newUser.firstName = firstName;
+                    newUser.lastName = lastName;
                     newUser.userEmail = email;
                     newUser.userPassword = passwordHash;
+                    newUser.authMechanism = "BASIC";
+                    newUser.profilePhotoURL = "NULL";
                     UserModel.save(newUser).then((result) => {
                         resolve(result);
                     }).catch((error) => {
-                        logger.error(error);
+                        logger.error(`${error.stack}`);
                         return reject(error);
                     })
                 } catch (error) {
-                    logger.error(error);
+                    logger.error(error.stack);
                     return reject(error);
                 }
             } else {
@@ -113,7 +117,7 @@ function checkUsernameAvailabilityService(username) {
                     return reject({ type: "CLIENT_ERROR", msg: "Username already exists" });
                 }
             } catch (error) {
-                logger.error(error);
+                logger.error(error.stack);
                 return reject(error);
             }
         })();
@@ -135,7 +139,7 @@ function checkEmailAvailabilityService(email) {
                     return reject({ type: "CLIENT_ERROR", msg: "Email is already associated with another username" });
                 }
             } catch (error) {
-                logger.error(error);
+                logger.error(error.stack);
                 return reject(error);
             }
         })();

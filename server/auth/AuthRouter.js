@@ -1,5 +1,5 @@
 const express = require("express");
-const {validateUsername, validateEmail, validatePassword} = require("./util/Validator")
+const { validateUsername, validateFirst, validateLast, validateEmail, validatePassword } = require("./util/Validator")
 const {
   postSignUpController,
   postLoginController,
@@ -28,12 +28,18 @@ const authRouter = express.Router();
  *             properties:
  *               username:
  *                 type: string
+ *               first:
+ *                 type: string
+ *               last:
+ *                 type: string
  *               password:
  *                 type: string
  *               email:
  *                 type: string
  *           example:
  *             username: codding-monk
+ *             first: codding
+ *             last: monk
  *             email: codding-monk@gmail.com
  *             password: CoddingMonk@2021
  *     responses:
@@ -85,7 +91,7 @@ const authRouter = express.Router();
  *         description: Failed to SignUp due to internal server error
  *       
  */
-authRouter.post("/signup", validateUsername({body:true}), validatePassword(), validateEmail(), postSignUpController);
+authRouter.post("/signup", validateUsername({ body: true }), validateFirst(), validateLast(), validatePassword(), validateEmail(), postSignUpController);
 
 
 /**
@@ -141,7 +147,7 @@ authRouter.post("/signup", validateUsername({body:true}), validatePassword(), va
  *         description: Failed to Login due to internal server error
  *       
  */
-authRouter.post("/login", validatePassword(), validateEmail(), postLoginController, passport.authenticate('local', { failureMessage: true}), (req, res) => {
+authRouter.post("/login", validatePassword(), validateEmail(), postLoginController, passport.authenticate('local', { failureMessage: true }), (req, res) => {
   res.status(200).json("Success");
 });
 
@@ -197,7 +203,7 @@ authRouter.get("/logout", getLogoutController);
  *         description: Failed to Login due to internal server error
  *       
  */
-authRouter.get("/check-username", validateUsername({query:true}), getCheckUsernameAvailabilityController);
+authRouter.get("/check-username", validateUsername({ query: true }), getCheckUsernameAvailabilityController);
 
 /**
  * @swagger
@@ -232,6 +238,6 @@ authRouter.get("/check-username", validateUsername({query:true}), getCheckUserna
  *         description: Failed to Login due to internal server error
  *       
  */
-authRouter.get("/check-email", validateEmail({query:true}), getCheckEmailAvailabilityController);
+authRouter.get("/check-email", validateEmail({ query: true }), getCheckEmailAvailabilityController);
 
 module.exports = { authRouter: authRouter };

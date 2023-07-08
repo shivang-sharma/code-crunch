@@ -1,18 +1,18 @@
 const passport = require('passport');
-const {DoneCallback} = require('passport');
+const { DoneCallback } = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
-const {UserModel} = require("../../persistency/models/UserModel");
-const {comparePasswordHash} = require("./BcryptUtil");
-const {Logger} = require("../../lib/logger/Logger")
+const { UserModel } = require("../../persistency/models/UserModel");
+const { comparePasswordHash } = require("./BcryptUtil");
+const { Logger } = require("../../lib/logger/Logger")
 const logger = new Logger("API-SERVER", "PassportUtil.js");
 /**
  * @description
  * Custom Field credential Keys
  */
 const customFields = {
-    usernameField:'email',
-    passwordField:'password',
+    usernameField: 'email',
+    passwordField: 'password',
 };
 
 /**
@@ -28,18 +28,21 @@ const customFields = {
  * @param {DoneCallback} done 
  */
 function verifyCredentialsCallback(email, password, done) {
-    (async ()=>{
+    (async () => {
         try {
             const userInfoFromDB = await UserModel.getUserByEmail(email);
+            if (userInfoFromDB.authMechanism.localeCompare("BASIC") !== 0) {
+                return done({ msg: `Registered using ${userInfoFromDB.authMechanism}` })
+            }
             const match = await comparePasswordHash(password, userInfoFromDB.userPassword);
             if (match) {
                 return done(null, userInfoFromDB);
             } else {
                 return done(null, false);
             }
-        } catch(error) {
-            if(error.msg === undefined) {
-                logger.error(error);
+        } catch (error) {
+            if (error.msg === undefined) {
+                logger.error(`${error.stack}`);
                 return done(error);
             } else {
                 logger.error(error.msg);
@@ -55,21 +58,27 @@ passport.use(localStrategy);
 /**
  * This is used  for setting the user id as cookie in header
  */
-passport.serializeUser((user, done)=>{
-    return done(null,user.userId);
+passport.serializeUser((user, done) => {
+    return done(null, user.userId);
 });
 
 /**
  * This is used  for retrieving the user id from the cookie.
  */
-passport.deserializeUser(function(userId, done) {
-    (async ()=>{
+passport.deserializeUser(function (user, done) {
+    let userId = null;
+    (async () => {
         try {
+            if (user.constructor.name.localeCompare("Object") === 0) {
+                userId = user.userId;
+            } else {
+                userId = user;
+            }
             const userFromDB = await UserModel.getUserById(userId);
             return done(null, userFromDB);
-        } catch(error) {
-            if(error.msg === undefined) {
-                logger.error(error);
+        } catch (error) {
+            if (error.msg === undefined) {
+                logger.error(`${error.stack}`);
                 return done(error);
             } else {
                 logger.error(error.msg);
@@ -81,5 +90,5 @@ passport.deserializeUser(function(userId, done) {
 });
 
 module.exports = {
-    passport:passport
+    passport: passport
 }

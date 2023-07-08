@@ -2,7 +2,7 @@ const { Request } = require("express");
 const { Response } = require("express");
 const { NextFunction } = require("express");
 const { validationResult, matchedData } = require("express-validator");
-const {Logger} = require("../../lib/logger/Logger");
+const { Logger } = require("../../lib/logger/Logger");
 const logger = new Logger("API-SERVER", "AuthController.js")
 const { signUpService, checkEmailAvailabilityService, checkUsernameAvailabilityService } = require("../service/AuthService");
 
@@ -19,17 +19,19 @@ module.exports = {
       if (result.isEmpty()) {
         const bodyData = matchedData(req);
         const username = bodyData.username;
+        const firstName = bodyData.first;
+        const lastName = bodyData.last;
         const email = bodyData.email;
         const password = bodyData.password;
         try {
-          const user = await signUpService(username, email, password);
+          const user = await signUpService(username, firstName, lastName, email, password);
           return res.status(201).json({ msg: "success" });
         } catch (error) {
           if (error.type === "CLIENT_ERROR") {
             logger.error(error.msg);
             return res.status(406).json({ error: error.data });
           } else {
-            logger.error(error);
+            logger.error(error.stack);
             return res.status(500).json({ msg: "Failed to SignUp" });
           }
         }
@@ -38,7 +40,7 @@ module.exports = {
         return res.status(403).json({ error: result.array() });
       }
     })().catch((error) => {
-      logger.error(error);
+      logger.error(error.stack);
       return res.status(500).json({ msg: "Failed to SignUp" });
     });
   },
@@ -49,13 +51,13 @@ module.exports = {
    * @param {NextFunction} next
    */
   postLoginController: function (req, res, next) {
-      const result = validationResult(req);
-      if (result.isEmpty()) {
-        next();
-      } else {
-        logger.error(result.array());
-        return res.status(403).json({ error: result.array() });
-      }
+    const result = validationResult(req);
+    if (result.isEmpty()) {
+      next();
+    } else {
+      logger.error(result.array());
+      return res.status(403).json({ error: result.array() });
+    }
   },
   /**
    *
@@ -96,7 +98,7 @@ module.exports = {
             logger.error(error.msg);
             return res.status(403).json({ error: error.msg });
           } else {
-            logger.error(error);
+            logger.error(error.stack);
             return res.status(500).json({ msg: "Internal Server Error" });
           }
         }
@@ -105,7 +107,7 @@ module.exports = {
         return res.status(403).json({ error: result.array() });
       }
     })().catch((error) => {
-      logger.error(error);
+      logger.error(error.stack);
       return res.status(500).json({ msg: "Internal Server Error" });
     });
   },
@@ -129,7 +131,7 @@ module.exports = {
             logger.error(error.msg);
             return res.status(403).json({ error: error.msg });
           } else {
-            logger.error(error);
+            logger.error(error.stack);
             return res.status(500).json({ msg: "Internal Server Error" });
           }
         }
@@ -138,7 +140,7 @@ module.exports = {
         return res.status(403).json({ error: result.array() });
       }
     })().catch((error) => {
-      logger.error(error);
+      logger.error(error.stack);
       return res.status(500).json({ msg: "Internal Server Error" });
     });
   }
