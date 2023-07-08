@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const compression = require("compression")
 const helmet = require("helmet")
@@ -5,15 +6,16 @@ const hpp = require("hpp")
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 
-const {morganMiddleware} = require("./lib/logger/MorganWrapper");
-const {corsMiddleware} = require("./middleware/CorsMiddleware")
-const {sessionMiddleware} = require("./middleware/SessionMiddleware");
-const {authenticationMiddleware} = require("./middleware/Middleware");
-const {Logger} = require("./lib/logger/Logger");
+const { morganMiddleware } = require("./lib/logger/MorganWrapper");
+const { corsMiddleware } = require("./middleware/CorsMiddleware")
+const { sessionMiddleware } = require("./middleware/SessionMiddleware");
+const { authenticationMiddleware } = require("./middleware/Middleware");
+const { Logger } = require("./lib/logger/Logger");
 const logger = new Logger("API-SERVER", "app.js");
-const {passport} = require("./auth/util/PassportUtil")
+const { passport } = require("./auth/util/PassportUtil")
 
 const { authRouter } = require("./auth/AuthRouter");
+const { oauthRouter } = require("./oauth/OAuthRouter");
 const { healthRouter } = require("./health/HealthRouter");
 const { leaderboardRouter } = require("./leaderboard/LeaderboardRouter");
 const { problemRouter } = require("./problem/ProblemRouter");
@@ -79,9 +81,9 @@ const options = {
   definition: {
     openapi: "3.0.0",
     failOnErrors: true,
-    info: {  
-        title:'API',  
-        version:'1.0.0'  
+    info: {
+      title: 'API',
+      version: '1.0.0'
     },
     servers: [
       {
@@ -90,9 +92,9 @@ const options = {
     ],
     tags: [
       {
-        name:"auth",
+        name: "auth",
         description: "Auth related endpoints"
-      }, 
+      },
       {
         name: "problem",
         description: "Problems related endpoints"
@@ -103,12 +105,13 @@ const options = {
       }
     ]
 
-},  
+  },
   apis: ['./**/**Router.js'], // files containing annotations as above
-}  
+}
 const swaggerDocs = swaggerJsdoc(options);
-app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(swaggerDocs));
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 app.use("/api", authRouter);
+app.use("/api/oauth", oauthRouter);
 app.use("/api", healthRouter);
 app.use("/api", authenticationMiddleware, leaderboardRouter);
 app.use("/api", authenticationMiddleware, problemRouter);
