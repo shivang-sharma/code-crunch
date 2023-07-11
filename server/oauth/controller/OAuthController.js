@@ -21,7 +21,7 @@ const scopes = [
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/userinfo.profile'
 ];
-const authorizationUrl = oauth2Client.generateAuthUrl({
+const googleAuthorizationUrl = oauth2Client.generateAuthUrl({
   // 'online' (default) or 'offline' (gets refresh_token)
   access_type: 'offline',
   /** Pass in the scopes array defined above.
@@ -42,7 +42,7 @@ module.exports = {
    * @param {Response} res
    * @param {NextFunction} next
    */
-  postOauthGoogleCallbackController: function (req, res, next) {
+  getOauthGoogleCallbackController: function (req, res, next) {
     (async () => {
       const code = req.query.code;
       const { tokens } = await oauth2Client.getToken(code);
@@ -75,24 +75,26 @@ module.exports = {
    * @param {Response} res
    * @param {NextFunction} next
    */
-  postOauthGoogleLoginController: function (req, res, next) {
-    res.writeHead(302, { "Location": authorizationUrl });
+  getOauthGoogleLoginController: function (req, res, next) {
+    res.writeHead(302, { "Location": googleAuthorizationUrl });
     res.end();
   },
-   /**
-   *
-   * @param {Request} req
-   * @param {Response} res
-   * @param {NextFunction} next
-   */
-   postOauthGitHubCallbackController: function (req, res, next) {
+  
+  /**
+  *
+  * @param {Request} req
+  * @param {Response} res
+  * @param {NextFunction} next
+  */
+  getOauthGitHubCallbackController: function (req, res, next) {
     (async () => {
       const code = req.query.code;
-      const { tokens } = await oauth2Client.getToken(code);
-      const { access_token, refresh_token } = tokens;
-      oauth2Client.setCredentials(tokens);
-      const { id, email, given_name, family_name, picture } = (await google.oauth2("v2").userinfo.get()).data;
-      const userId = await oauthSignUpService(id, email, given_name, family_name, picture, "GOOGLE", refresh_token);
+      const { access_token, scope } = await getGitHubAccessToken(code);
+      const { id, avatar_url, name } = await getGitHubUser(access_token);
+      const firstName = String(name).split(" ")[0];
+      const lastName = String(name).split(" ")[1] === undefined ? "" : String(name).split(" ")[1];
+      const emailInfo = await getGitHubUserEmail(access_token);
+      const userId = await oauthSignLoginUpService(id, emailInfo.email, firstName, lastName, avatar_url, "GITHUB", "");
       logger.verbose(userId);
       req.session.regenerate(function (err) {
         if (err) console.log(err);
@@ -118,8 +120,71 @@ module.exports = {
    * @param {Response} res
    * @param {NextFunction} next
    */
-  postOauthGitHubLoginController: function (req, res, next) {
-    res.writeHead(301, { "Location": authorizationUrl });
+  getOauthGitHubLoginController: function (req, res, next) {
+    const gitHubAuthorizationURL = `https://github.com/login/oauth/authorize?scope=user:email&client_id=${process.env.GITHUB_CLIENT_ID}`;
+    res.writeHead(301, { "Location": gitHubAuthorizationURL });
     res.end();
   }
 };
+/**
+ * 
+ * @param {String} code 
+ * @returns 
+ */
+async function getGitHubAccessToken(code) {
+  const postGitHubURL = `https://github.com/login/oauth/access_token`;
+  const postBody = {
+    client_id: process.env.GITHUB_CLIENT_ID,
+    client_secret: process.env.GITHUB_CLIENT_SECRET,
+    code: code,
+    redirect_uri: process.env.GITHUB_REDIRECT_URI
+  }
+  const response = await fetch(postGitHubURL, {
+    method: "POST",
+    body: JSON.stringify(postBody),
+    headers: {
+      "accept": "application/json",
+      "content-type": "application/json"
+    }
+  });
+  const tokenResponse = await response.json();
+  return tokenResponse;
+}
+/**
+ * 
+ * @param {String} accessToken 
+ * @returns 
+ */
+async function getGitHubUser(accessToken) {
+  const uri = `https://api.github.com/user`;
+  const response = await fetch(uri, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+      "X-GitHub-Api-Version": "2022-11-28"
+    }
+  });
+  const responseJson = await response.json();
+  return responseJson;
+}
+/**
+ * 
+ * @param {String} accessToken 
+ * @returns 
+ */
+async function getGitHubUserEmail(accessToken) {
+  const uri = "https://api.github.com/user/emails";
+  const response = await fetch(uri, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+      "X-GitHub-Api-Version": "2022-11-28"
+    }
+  });
+  const responseJson = await response.json();
+  return responseJson.find((email) => {
+    return email.primary === true;
+  });
+}

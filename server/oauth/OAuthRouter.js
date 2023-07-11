@@ -1,9 +1,11 @@
 const express = require("express");
 const {
-  postOauthGoogleCallbackController,
-  postOauthGoogleLoginController,
+  getOauthGoogleCallbackController,
+  getOauthGoogleLoginController,
+  getOauthGitHubCallbackController,
+  getOauthGitHubLoginController
+
 } = require("./controller/OAuthController");
-const passport = require("passport");
 const oauthRouter = express.Router();
 
 /**
@@ -80,9 +82,9 @@ const oauthRouter = express.Router();
  *         description: Failed to SignUp due to internal server error
  *       
  */
-oauthRouter.get("/google/callback", postOauthGoogleCallbackController);
+oauthRouter.get("/google/callback", getOauthGoogleCallbackController);
 
-oauthRouter.get("/google/login_signup", postOauthGoogleLoginController);
+oauthRouter.get("/google/login_signup", getOauthGoogleLoginController);
 
 /**
  * @swagger
@@ -158,7 +160,7 @@ oauthRouter.get("/google/login_signup", postOauthGoogleLoginController);
  *         description: Failed to SignUp due to internal server error
  *       
  */
-oauthRouter.post("/github/callback", postOauthGoogleCallbackController);
-oauthRouter.post("/github/login_signup", postOauthGoogleCallbackController);
+oauthRouter.get("/github/callback", getOauthGitHubCallbackController);
+oauthRouter.get("/github/login_signup", getOauthGitHubLoginController);
 
 module.exports = { oauthRouter: oauthRouter };

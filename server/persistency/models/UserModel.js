@@ -141,6 +141,9 @@ class UserModel extends BaseModel {
                         .select('USER_ID')
                         .select('USERNAME')
                         .select('USER_EMAIL')
+                        .select('USER_FIRST_NAME')
+                        .select('USER_LAST_NAME')
+                        .select('USER_PROFILE_PHOTO_URL')
                         .select('USER_PASSWORD')
                         .from('P_USER')
                         .where('USER_ID')
@@ -153,6 +156,9 @@ class UserModel extends BaseModel {
                     const user = new UserEntity(result[0].USER_ID);
                     user.userEmail = result[0].USER_EMAIL;
                     user.username = result[0].USERNAME;
+                    user.firstName = result[0].USER_FIRST_NAME;
+                    user.lastName = result[0].USER_LAST_NAME;
+                    user.profilePhotoURL = result[0].USER_PROFILE_PHOTO_URL;
                     user.userPassword = result[0].USER_PASSWORD;
                     return resolve(user);
                 } catch (error) {
